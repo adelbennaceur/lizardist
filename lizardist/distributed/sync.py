@@ -23,9 +23,6 @@ class Synchronizer:
     def broadcast_parameters(self, model: torch.nn.Module, root: int = 0) -> None:
         """Broadcast model parameters from root process to all processes."""
         for param in model.parameters():
-            # Convert parameter to numpy array for MPI communication
             param_np = param.data.detach().cpu().numpy()
-            # Broadcast from root
             param_np = self.comm.bcast(param_np, root=root)
-            # Convert back to torch tensor and update parameter
             param.data.copy_(torch.from_numpy(param_np).to(param.device))
