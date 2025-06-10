@@ -17,7 +17,7 @@ class Communicator:
         """Get the total number of processes."""
         return self.size
 
-    def barrier(self):
+    def barrier(self) -> None:
         """Synchronize all processes."""
         self.comm.Barrier()
 
