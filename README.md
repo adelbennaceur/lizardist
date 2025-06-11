@@ -67,7 +67,7 @@ uv run mpirun -np 2 python examples/train_mnist.py
 - `engine/model.py`: Model definitions
 - `utils/logger.py`: Rank-aware logging
 
-🚀 Next Steps
+# 🚀 Next Steps
 
 Currently, LizarDist only supports data parallelism using manual gradient synchronization via MPI.
 
