@@ -40,6 +40,12 @@ install `MPICH`
 sudo apt-get install mpich
 ```
 
+Create a vitrtual venv for uv
+
+```bash
+uv venv && source .venv/bin/activate
+```
+
 install dependencies
 
 ```bash
