@@ -71,16 +71,15 @@ uv run mpirun -np 2 python examples/train_mnist.py
 
 Currently, LizarDist only supports data parallelism using manual gradient synchronization via MPI.
 
-- [ ] Implement Gradient Bucketing
-Group gradients into larger buckets before allreduce to reduce communication overhead. Benchmark and compare the number of collective calls (CC) before and after.
+- [ ] Implement Gradient Bucketing: Group gradients into larger buckets before allreduce to reduce communication overhead. Benchmark and compare the number of collective calls (CC) before and after.
 
-- [ ] Add Ring AllReduce: Replace standard allreduce with a ring-based implementation for better bandwidth efficiency on large clusters.
+- [ ] Add Ring AllReduce: Expirement/Implment ring AllReduce.
 
-- [ ] Introduce Model Parallelism: split model layers across multiple processes. Start with basic layer sharding to study compute/memory trade-offs.
+- [ ] Model Parallelism: split model layers across multiple processes. Start with basic layer sharding to study compute/memory trade-offs.
 
-- [ ] Prototype Pipeline Parallelism: Divide the model into sequential stages across ranks. Implement micro-batching to enable inter-stage parallel execution.
+- [ ] Pipeline Parallelism: Divide the model into sequential stages across ranks.
 
-- [ ] Explore Tensor Parallelism: Partition individual tensor operations (e.g., matrix multiplications) across processes.
+- [ ] Tensor Parallelism: Partition individual tensor operations (e.g., matrix multiplications) across processes.
 
 # ⚠️ Disclaimer
 
