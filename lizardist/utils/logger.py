@@ -1,10 +1,7 @@
 import logging
-from typing import Optional
 
 
-def get_logger(
-    rank: int, name: str = "lizardist", level: int = logging.INFO
-) -> logging.Logger:
+def get_logger(rank: int, name: str = "lizardist", level: int = logging.INFO) -> logging.Logger:
     """Get a rank-aware logger.
 
     Args:
@@ -19,9 +16,7 @@ def get_logger(
     logger.setLevel(level)
 
     # Create formatter
-    formatter = logging.Formatter(
-        f"[{rank}] %(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    formatter = logging.Formatter(f"[Rank {rank}] %(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     # Create console handler
     ch = logging.StreamHandler()

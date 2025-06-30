@@ -36,13 +36,14 @@ ignore_missing_imports = true
 strict = true
 [tool.mypy-h5py]
 ignore_missing_imports = true
+namespace_packages = true
 
 [tool.black]
-line-length = 88
+line-length = 120
 target-version = ['py310']
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py310"
 lint.select = ["E", "F", "B", "I"]
 

@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from tqdm import tqdm
 
 from lizardist.distributed.communicator import Communicator
 from lizardist.distributed.sync import Synchronizer
@@ -29,9 +28,7 @@ def train(rank: int, world_size: int, epochs: int = 10, batch_size: int = 32) ->
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
-    transform = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
-    )
+    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
 
     dataset = datasets.MNIST("../data", train=True, download=True, transform=transform)
 
@@ -66,7 +63,7 @@ def train(rank: int, world_size: int, epochs: int = 10, batch_size: int = 32) ->
             loss.backward()
 
             # Sync gradients
-            sync.sync_gradients(model)
+            sync.sync_gradients(model, use_bucketing=True)
 
             optimizer.step()
 
@@ -76,16 +73,12 @@ def train(rank: int, world_size: int, epochs: int = 10, batch_size: int = 32) ->
             correct += predicted.eq(target).sum().item()
 
             if batch_idx % 10 == 0 and rank == 0:
-                logger.info(
-                    f"Epoch {epoch}/{epochs} | Batch {batch_idx}/{len(train_loader)} | Loss: {loss.item():.4f}"
-                )
+                logger.info(f"Epoch {epoch}/{epochs} | Batch {batch_idx}/{len(train_loader)} | Loss: {loss.item():.4f}")
 
         if rank == 0:
             avg_loss = running_loss / len(train_loader)
             accuracy = 100.0 * correct / total
-            logger.info(
-                f"Epoch {epoch}/{epochs} | Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%"
-            )
+            logger.info(f"Epoch {epoch}/{epochs} | Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
 
 
 if __name__ == "__main__":
@@ -93,3 +86,6 @@ if __name__ == "__main__":
 
     comm = Communicator()
     train(comm.get_rank(), comm.get_world_size())
+    comm.barrier()
+    print(comm.get_bucket_stats())
+    comm.finalize()

@@ -1,11 +1,9 @@
-import torch.nn as nn
 import torch
+import torch.nn as nn
 
 
-class MLP(nn.Module):
-    def __init__(
-        self, input_dim: int = 784, hidden_dim: int = 128, output_dim: int = 10
-    ) -> None:
+class MLP(nn.Module):  # type: ignore
+    def __init__(self, input_dim: int = 784, hidden_dim: int = 128, output_dim: int = 10) -> None:
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
@@ -19,7 +17,7 @@ class MLP(nn.Module):
         return self.net(x)
 
 
-class ConvNet(nn.Module):
+class ConvNet(nn.Module):  # type: ignore
     def __init__(self) -> None:
         super().__init__()
         self.conv1 = nn.Conv2d(1, 16, kernel_size=3, padding=1)
