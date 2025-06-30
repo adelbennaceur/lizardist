@@ -72,36 +72,34 @@ class Communicator:
 
         Args:
             tensors: List of numpy arrays to reduce
-            op: MPI reduction operation
+            op: MPI operation to use (default: MPI.SUM)
 
         Returns:
-            List of reduced tensors
+            List of reduced numpy arrays
         """
-        if not self.use_bucketing:
-            # If bucketing is disabled, perform individual allreduce operations
-            return [self.allreduce(t, op=op) for t in tensors]
-
-        results = []
+        bucket_size = 1024 * 1024  # 1MB bucket size
         current_bucket: list[np.ndarray] = []
         current_size = 0
+        results: list[np.ndarray] = []
+        shapes: list[tuple[int, ...]] = []
 
         for tensor in tensors:
             tensor_size = tensor.nbytes
-            if current_size + tensor_size > self.bucket_size and current_bucket:
-                # Perform AllReduce on current bucket
+            if current_size + tensor_size > bucket_size and current_bucket:
+                # Process current bucket
                 bucket_array = np.concatenate(current_bucket)
                 reduced_bucket = self.allreduce(bucket_array, op=op)
-                # Split back into original tensors
                 split_idx = 0
-                for t in current_bucket:
+                for t, shape in zip(current_bucket, shapes, strict=False):
                     size = t.size
-                    results.append(reduced_bucket[split_idx : split_idx + size].reshape(t.shape))
+                    results.append(reduced_bucket[split_idx : split_idx + size].reshape(shape))
                     split_idx += size
                 current_bucket = []
                 current_size = 0
                 self.total_buckets += 1
 
-            current_bucket.append(tensor)
+            shapes.append(tensor.shape)
+            current_bucket.append(tensor.flatten())
             current_size += tensor_size
 
         # process remaining tensors in the last bucket
@@ -109,10 +107,12 @@ class Communicator:
             bucket_array = np.concatenate(current_bucket)
             reduced_bucket = self.allreduce(bucket_array, op=op)
             split_idx = 0
-            for t in current_bucket:
+            for t, shape in zip(current_bucket, shapes, strict=False):
                 size = t.size
-                results.append(reduced_bucket[split_idx : split_idx + size].reshape(t.shape))
+                results.append(reduced_bucket[split_idx : split_idx + size].reshape(shape))
                 split_idx += size
+            current_bucket = []
+            current_size = 0
             self.total_buckets += 1
 
         return results

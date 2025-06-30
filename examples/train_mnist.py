@@ -1,6 +1,9 @@
+import pprint
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from strictfire import StrictFire
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
@@ -63,7 +66,7 @@ def train(rank: int, world_size: int, epochs: int = 10, batch_size: int = 32) ->
             loss.backward()
 
             # Sync gradients
-            sync.sync_gradients(model, use_bucketing=True)
+            sync.sync_gradients(model, use_bucketing=False)
 
             optimizer.step()
 
@@ -80,12 +83,12 @@ def train(rank: int, world_size: int, epochs: int = 10, batch_size: int = 32) ->
             accuracy = 100.0 * correct / total
             logger.info(f"Epoch {epoch}/{epochs} | Loss: {avg_loss:.4f} | Accuracy: {accuracy:.2f}%")
 
+    pprint.pprint(comm.get_bucket_stats())
+    comm.finalize()
+
 
 if __name__ == "__main__":
     from lizardist.distributed.communicator import Communicator
 
     comm = Communicator()
-    train(comm.get_rank(), comm.get_world_size())
-    comm.barrier()
-    print(comm.get_bucket_stats())
-    comm.finalize()
+    StrictFire(lambda **kwargs: train(comm.get_rank(), comm.get_world_size(), **kwargs))
