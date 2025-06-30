@@ -71,7 +71,7 @@ uv run mpirun -np 2 python examples/train_mnist.py
 
 Currently, LizarDist only supports data parallelism using manual gradient synchronization via MPI.
 
-- [ ] Implement Gradient Bucketing: Group gradients into larger buckets before allreduce to reduce communication overhead. Benchmark and compare the number of collective calls (CC) before and after.
+- [x] Implement Gradient Bucketing: Group gradients into larger buckets before allreduce to reduce communication overhead. Benchmark and compare the number of collective calls (CC) before and after.
 
 - [ ] Add Ring AllReduce: Expirement/Implment ring AllReduce.
 
